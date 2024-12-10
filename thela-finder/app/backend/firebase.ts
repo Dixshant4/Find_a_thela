@@ -1,7 +1,7 @@
 // firebase.ts
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { collection, getDocs, GeoPoint } from "firebase/firestore";
+import { collection, getDocs, GeoPoint, addDoc } from "firebase/firestore";
 
 // Define the configuration type
 interface FirebaseConfig {
@@ -39,5 +39,9 @@ export const getStalls = async () => {
           };
         });
       };
+
+export const saveStall = async (name: string, latitude: number, longitude: number): Promise<void> => {
+    await addDoc(collection(db, "stalls"), { name, location: new GeoPoint(latitude, longitude), });
+};
 
 export { db };
