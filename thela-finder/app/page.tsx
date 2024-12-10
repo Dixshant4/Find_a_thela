@@ -1,25 +1,26 @@
+// // index.html
+
 "use client";
 
-import React from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getStalls } from "./backend/firebase";
+import Map from "./components/Map";
 
-import MapButton from "./components/button";
+export default function Home() {
+  const [stalls, setStalls] = useState([]);
 
-const LandingPage: React.FC = () => {
-  const router = useRouter();
-
-  const navigateToMap = () => {
-    router.push("/map");
-  };
+  useEffect(() => {
+    const fetchStalls = async () => {
+      const data = await getStalls();
+      setStalls(data);
+    };
+    fetchStalls();
+  }, []);
 
   return (
-    <>
-      <h1 className="fw-100 fs-100 text-4xl font-bold">
-        Welcome to the Landing Page
-      </h1>
-      <MapButton callback={navigateToMap}></MapButton>
-    </>
+    <div className="p-4">
+      <h1 className="text-3xl font-bold mb-4">Stall Locations</h1>
+      <Map stalls={stalls} />
+    </div>
   );
-};
-
-export default LandingPage;
+}
