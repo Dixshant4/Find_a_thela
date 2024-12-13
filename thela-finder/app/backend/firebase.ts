@@ -89,6 +89,7 @@ export interface Thela {
   description: string;
   latitude: number;
   longitude: number;
+  type: "food" | "drink";
   mainFoodItem?: string;
   rating?: number;
 }
@@ -104,6 +105,7 @@ export const getThelas = async (): Promise<Thela[]> => {
       description: data.description,
       latitude: geoPoint.latitude,
       longitude: geoPoint.longitude,
+      type: data.type as "food" | "drink",
       mainFoodItem: data.mainFoodItem,
       rating: data.rating,
     };
@@ -115,6 +117,7 @@ export const saveThela = async (
   description: string, 
   latitude: number, 
   longitude: number,
+  type: "food" | "drink",
   mainFoodItem?: string,
   rating?: number
 ): Promise<string> => {
@@ -122,6 +125,7 @@ export const saveThela = async (
     name, 
     description, 
     location: new GeoPoint(latitude, longitude),
+    type,
     mainFoodItem,
     rating,
     createdAt: serverTimestamp()
