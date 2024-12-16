@@ -9,7 +9,10 @@
 6) created a Map.tsx file which I think is rendering the maps
 7) updated the page.tsx file in app folder to show the map
 8) updating the firebase, map file to include new type for food, drink for filtering purposes
-9) fixing the bug of map recentering to the user location everytime
+9) fixed the bug of map recentering to the user location everytime
+10) Added delete stall and recenter to user location functionality
+11) removed rating functionality
+12) fixed some issues with UI on phone
 
 
 <!-- To do's -->

@@ -32,7 +32,7 @@ const center = {
   lng: 72.8777,
 };
 
-export default function ThelaMap({ thelas, onAddThela }: MapProps) {
+export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps) {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
   });
@@ -51,6 +51,8 @@ export default function ThelaMap({ thelas, onAddThela }: MapProps) {
   const lastTapRef = useRef<number>(0); // Track last tap time
   const tapTimeout = useRef<NodeJS.Timeout | null>(null); // Timeout for single-tap delay
   const [hasCenteredOnUser, setHasCenteredOnUser] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false); // State to show the popup
+
 
 
 
@@ -189,9 +191,16 @@ export default function ThelaMap({ thelas, onAddThela }: MapProps) {
     try {
       await deleteThela(id); // Call Firebase delete function
       setSelectedThela(null); // Close the InfoWindow after deletion
+      if (onDeleteThela) {
+        onDeleteThela(id); // Update parent state
+      }
+      setShowSuccessPopup(true); // Show success popup
     } catch (error) {
       console.error("Failed to delete thela:", error);
     }
+    // } catch (error) {
+    //   console.error("Failed to delete thela:", error);
+    // }
   };
 
   return (
@@ -334,6 +343,23 @@ export default function ThelaMap({ thelas, onAddThela }: MapProps) {
 
       </GoogleMap>
 
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 className="text-lg font-bold text-green-600 mb-4">
+              Stall Deleted Successfully!
+            </h2>
+            {/* <p className="text-gray-600 mb-4">Refresh the page to see changes.</p> */}
+            <button
+              onClick={() => setShowSuccessPopup(false)} // Close popup
+              className="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
       
       {showForm && tempMarker && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
