@@ -1,7 +1,8 @@
 import { GoogleMap, Marker, InfoWindow, useLoadScript, MarkerClusterer } from "@react-google-maps/api";
 import { useEffect, useState, useRef } from "react";
-import { Utensils, CupSoda } from "lucide-react"; // removed a star import for rating
-import { saveThela, deleteThela } from "../backend/firebase";
+
+import ThelaForm from "./ThelaForm/ThelaForm";
+import ThelaInfoWindow from "./ThelaInfoWindow/ThelaInfoWindow";
 
 import { Thela } from '../types/thela';
 
@@ -18,10 +19,7 @@ const mapContainerStyle = {
   boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
 };
 
-const center = {
-  lat: 19.0760, 
-  lng: 72.8777,
-};
+const center = {lat: 19.0760, lng: 72.8777};
 
 export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps) {
   const { isLoaded } = useLoadScript({
@@ -30,20 +28,14 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
 
   const [showForm, setShowForm] = useState(false);
   const [newThela, setNewThela] = useState({ lat: 0, lng: 0 });
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [mainFoodItem, setMainFoodItem] = useState("");
-//   const [rating, setRating] = useState(0);
-  const [type, setType] = useState<Thela["type"]>("food");
-  const [selectedThela, setSelectedThela] = useState<null | Thela>(null);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [tempMarker, setTempMarker] = useState<google.maps.LatLngLiteral | null>(null);  // added this
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const lastTapRef = useRef<number>(0); // Track last tap time
-  const tapTimeout = useRef<NodeJS.Timeout | null>(null); // Timeout for single-tap delay
+  const [selectedThela, setSelectedThela] = useState<Thela | null>(null);
+  const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
+  const [tempMarker, setTempMarker] = useState<google.maps.LatLngLiteral | null>(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [hasCenteredOnUser, setHasCenteredOnUser] = useState(false);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false); // State to show the popup
-
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const lastTapRef = useRef<number>(0);
+  const tapTimeout = useRef<NodeJS.Timeout | null>(null);
 
 
 
@@ -56,28 +48,14 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
             lng: position.coords.longitude,
           });
         },
-        (error) => {
-          console.error("Error getting user location:", error);
-        },
-        {
-          enableHighAccuracy: true,
-        }
+        
+        (error) => console.error("Error getting user location:", error),
+        { enableHighAccuracy: true }
       );
 
-      return () => {
-        navigator.geolocation.clearWatch(watchId);
-      };
-    } else {
-      console.error("Geolocation is not supported by this browser.");
+      return () => navigator.geolocation.clearWatch(watchId);
     }
   }, []);
-
-//   // When interacting with the map, prevent page scrolling.
-//   useEffect(() => {
-//     const preventScroll = (e: TouchEvent) => e.preventDefault();
-//     document.addEventListener("touchmove", preventScroll, { passive: false });
-//     return () => document.removeEventListener("touchmove", preventScroll);
-//   }, []);
 
   useEffect(() => {
     if (mapRef.current && userLocation && !hasCenteredOnUser) {
@@ -89,18 +67,9 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
   const handleRecenter = () => {
     if (mapRef.current && userLocation) {
       mapRef.current.setCenter(userLocation);
-      mapRef.current.setZoom(16); // Optional: Set the zoom level
-    } else {
-      console.error("User location not available.");
+      mapRef.current.setZoom(16); 
     }
   };
-
-
-  if (!isLoaded) return (
-    <div className="flex justify-center items-center h-screen">
-      <div className="animate-pulse text-xl text-gray-600">Loading map...</div>
-    </div>
-  );
 
   const handleDoubleTap = () => {
     const map = mapRef.current;
@@ -145,55 +114,31 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
   };
 
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const specialityItem = (type === 'food' || type === 'drink') ? mainFoodItem : undefined;
-    const thela = {
-      name,
-      description,
-      mainFoodItem: specialityItem,
-    //   rating,
-      latitude: newThela.lat,
-      longitude: newThela.lng,
-      type,
-    };
-
+  const handleFormSubmit = async (thela: Omit<Thela, 'id'>) => {
     if (onAddThela) {
       onAddThela(thela);
-    } else {
-      await saveThela(name, description, newThela.lat, newThela.lng, type, specialityItem);  // removed rating options from this line
     }
-
-    // Reset form fields
     setShowForm(false);
     setTempMarker(null);
-    setName("");
-    setDescription("");
-    setMainFoodItem("");
-    // setRating(0);
-    setType("food");
-  };
-
-  const handleCancel = () => {
-    setShowForm(false);
-    setTempMarker(null); // Remove temporary marker
   };
 
   const handleDeleteThela = async (id: string) => {
     try {
-      await deleteThela(id); // Call Firebase delete function
-      setSelectedThela(null); // Close the InfoWindow after deletion
       if (onDeleteThela) {
-        onDeleteThela(id); // Update parent state
+        onDeleteThela(id);
       }
-      setShowSuccessPopup(true); // Show success popup
+      setSelectedThela(null);
+      setShowSuccessPopup(true);
     } catch (error) {
       console.error("Failed to delete thela:", error);
     }
-    // } catch (error) {
-    //   console.error("Failed to delete thela:", error);
-    // }
   };
+
+  if (!isLoaded) return (
+    <div className="flex justify-center items-center h-screen">
+      <div className="animate-pulse text-xl text-gray-600">Loading map...</div>
+    </div>
+  );
 
   return (
     <div className="relative w-full" style={{ height: "100dvh" }}>
@@ -261,61 +206,24 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
         )}  
 
 
-        {selectedThela && (
-        <InfoWindow
-        position={{ lat: selectedThela.latitude, lng: selectedThela.longitude }}
-        onCloseClick={() => setSelectedThela(null)}
-      >
-        <div className="bg-white rounded-lg shadow-xl">
-          <div className="flex items-center p-3 border-b">
-            {selectedThela.type === 'food' ? (
-              <Utensils className="mr-3 text-emerald-600" size={20} />
-            ) : (
-              <CupSoda className="mr-3 text-blue-600" size={20} />
-            )}
-            <h2 className="text-lg font-bold text-gray-900">{selectedThela.name}</h2>
-          </div>
-      
-          <div className="p-3 space-y-2">
-            <div>
-              <span className="font-semibold text-gray-700 text-sm">Type:</span>{' '}
-              <span className="text-gray-900 text-sm capitalize">{selectedThela.type}</span>
-            </div>
-            {selectedThela.type === 'food' && selectedThela.mainFoodItem && (
-              <div>
-                <span className="font-semibold text-gray-700 text-sm">Main Food Item:</span>{' '}
-                <span className="text-gray-900 text-sm">{selectedThela.mainFoodItem}</span>
-              </div>
-            )}
-            {selectedThela.type === 'drink' && selectedThela.mainFoodItem && (
-              <div>
-                <span className="font-semibold text-gray-700 text-sm">Main Drink Item:</span>{' '}
-                <span className="text-gray-900 text-sm">{selectedThela.mainFoodItem}</span>
-              </div>
-            )}
-            {selectedThela.description && (
-              <div>
-                <span className="font-semibold text-gray-700 text-sm">Description:</span>{' '}
-                <span className="text-gray-900 text-sm italic">{selectedThela.description}</span>
-              </div>
-            )}
-            <button
-              onClick={() => handleDeleteThela(selectedThela.id!)}
-              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-            >
-              Delete Stall
-            </button>
-          </div>
-        </div>
-      </InfoWindow>
-      
+{selectedThela && (
+          <InfoWindow
+            position={{ lat: selectedThela.latitude, lng: selectedThela.longitude }}
+            onCloseClick={() => setSelectedThela(null)}
+          >
+            <ThelaInfoWindow
+              thela={selectedThela}
+              onClose={() => setSelectedThela(null)}
+              onDelete={handleDeleteThela}
+            />
+          </InfoWindow>
         )}
-        {/* button for recentering the map to users location */}
-      <button
-        onClick={handleRecenter}
-        className="absolute bottom-6 right-6 bg-white text-gray-700 p-3 rounded-full shadow-lg hover:bg-gray-100 focus:outline-none"
-        aria-label="Recenter"
-      >
+
+        <button
+          onClick={handleRecenter}
+          className="absolute bottom-6 right-6 bg-white text-gray-700 p-3 rounded-full shadow-lg hover:bg-gray-100 focus:outline-none"
+          aria-label="Recenter"
+        >
         <div
             className="w-6 h-6 border-2 border-gray-700 rounded-full relative"
             style={{ boxShadow: "inset 0 0 0 2px #000" }} // Inner circle
@@ -325,6 +233,17 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
       </button>
 
       </GoogleMap>
+
+      {showForm && tempMarker && (
+        <ThelaForm
+          onSubmit={handleFormSubmit}
+          onCancel={() => {
+            setShowForm(false);
+            setTempMarker(null);
+          }}
+          location={tempMarker}
+        />
+      )}
 
       {/* Success Popup */}
       {showSuccessPopup && (
@@ -343,111 +262,6 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
           </div>
         </div>
       )}
-      
-      {showForm && tempMarker && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md"> 
-            <form onSubmit={handleFormSubmit} className="space-y-4">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Add New ठेला</h2>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ठेला Name
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 
-                  text-black bg-white" // Changed text color to black
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stall Type
-                </label>
-                <select
-                    value={type}
-                    onChange={(e) => setType(e.target.value as "food" | "drink" | "tailor" | "flowers" | "mochi")}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 
-                    text-black bg-white" // Changed text color to black
-                >
-                    <option value="food">Food</option>
-                    <option value="drink">Drink</option>
-                    <option value="tailor">Tailor</option>
-                    <option value="flowers">Flowers</option>
-                    <option value="mochi">Mochi</option>
-                </select>
-              </div>
-              {(type === 'food' || type === 'drink') && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {type === 'food' ? 'Main Food Item' : 'Main Drink Item'}
-                  </label>
-                  <input
-                    type="text"
-                    value={mainFoodItem}
-                    onChange={(e) => setMainFoodItem(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 
-                    text-black bg-white"
-                    placeholder={type === 'food' ? 'e.g., Vada Pav, Bhel Puri' : 'e.g., Sugarcane Juice, Lassi'}
-                  />
-                </div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description (Optional)
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 
-                  text-black bg-white" // Changed text color to black
-                  rows={3}
-                  required
-                />
-              </div>
-              {/* <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Rating (0-5)
-                </label>
-                <div className="flex space-x-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setRating(star)}
-                      className={`text-2xl ${
-                        rating >= star ? 'text-yellow-500' : 'text-gray-300'
-                      }`}
-                    >
-                      ★
-                    </button>
-                  ))}
-                </div>
-              </div> */}
-              <div className="flex space-x-4">
-                <button 
-                  type="submit" 
-                  className="flex-1 bg-emerald-500 text-white py-2 rounded-md hover:bg-emerald-600 transition"
-                >
-                  Save Stall
-                </button>
-                <button 
-                  type="button"
-                //   onClick={() => setShowForm(false)}
-                  onClick={handleCancel}  
-                  className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-md hover:bg-gray-300 transition"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+      </div>
   );
 }
-
-              
