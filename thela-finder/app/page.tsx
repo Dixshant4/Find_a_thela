@@ -1,37 +1,3 @@
-// // // index.html
-
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import { getStalls } from "./backend/firebase";
-// import Map from "./components/Map";
-
-// type Stall = {
-//   id: string;
-//   name: string; // or `any` if the type is not strictly defined
-//   description: string; // or `any`
-//   latitude: number;
-//   longitude: number;
-// };
-
-// export default function Home() {
-//   const [stalls, setStalls] = useState<Stall[]>([]);
-
-//   useEffect(() => {
-//     const fetchStalls = async () => {
-//       const data = await getStalls();
-//       setStalls(data);
-//     };
-//     fetchStalls();
-//   }, []);
-
-//   return (
-//     <div className="p-4">
-//       <h1 className="text-3xl font-bold mb-4">Thela's Near You</h1>
-//       <Map stalls={stalls} />
-//     </div>
-//   );
-// }
 
 "use client";
 
@@ -45,14 +11,14 @@ export interface Thela {
   description: string;
   latitude: number;
   longitude: number;
-  type: "food" | "drink";
+  type: "food" | "drink" | "tailor" | "flowers" | "mochi";
   mainFoodItem?: string;
   // rating?: number;
 }
 
 export default function Home() {
   const [thelas, setThelas] = useState<Thela[]>([]);
-  const [filter, setFilter] = useState<"all" | "food" | "drink">("all"); // Default to "all"
+  const [filter, setFilter] = useState<"all" | "food" | "drink" | "tailor" | "flowers" | "mochi">("all"); // Default to "all"
 
 
   useEffect(() => {
@@ -97,7 +63,7 @@ export default function Home() {
 
   const filteredThelas = filter === "all" ? thelas : thelas.filter((thela) => thela.type === filter);
   return (
-    <div className="h-screen">
+    <div className="h-[100dvh] w-full overflow-hidden fixed inset-0">
       <div className="absolute top-4 left-4 z-10">
       <div className="absolute top-20 left-2 z-10 flex flex-col items-center">
         <label className="block text-md font-medium text-black mb-2">
@@ -116,6 +82,15 @@ export default function Home() {
           </option>
           <option value="drink" className="font-medium text-lg">
             Drink
+          </option>
+          <option value="tailor" className="font-medium text-lg">
+            Tailor
+          </option>
+          <option value="flowers" className="font-medium text-lg">
+            Flowers
+          </option>
+          <option value="mochi" className="font-medium text-lg">
+            Mochi
           </option>
         </select>
       </div>

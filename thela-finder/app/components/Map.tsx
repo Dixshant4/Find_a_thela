@@ -9,7 +9,7 @@ interface Thela {
   description: string;
   latitude: number;
   longitude: number;
-  type: "food" | "drink";
+  type: "food" | "drink" | "tailor" | "flowers" | "mochi";
   mainFoodItem?: string;
 //   rating?: number;
 }
@@ -43,7 +43,7 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
   const [description, setDescription] = useState("");
   const [mainFoodItem, setMainFoodItem] = useState("");
 //   const [rating, setRating] = useState(0);
-  const [type, setType] = useState<"food" | "drink">("food");
+  const [type, setType] = useState<Thela["type"]>("food");
   const [selectedThela, setSelectedThela] = useState<null | Thela>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [tempMarker, setTempMarker] = useState<google.maps.LatLngLiteral | null>(null);  // added this
@@ -391,6 +391,9 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
                 >
                     <option value="food">Food</option>
                     <option value="drink">Drink</option>
+                    <option value="tailor">Tailor</option>
+                    <option value="flowers">Flowers</option>
+                    <option value="mochi">Mochi</option>
                 </select>
               </div>
               <div>

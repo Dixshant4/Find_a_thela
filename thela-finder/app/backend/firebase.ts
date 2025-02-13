@@ -31,7 +31,7 @@ export interface Thela {
   description: string;
   latitude: number;
   longitude: number;
-  type: "food" | "drink";
+  type: "food" | "drink" | "tailor" | "flowers" | "mochi"; // can I convert this to a global variable?
   mainFoodItem?: string;
 //   rating?: number;
 }
@@ -48,7 +48,7 @@ export const getThelas = async (): Promise<Thela[]> => {
       description: data.description,
       latitude: geoPoint.latitude,
       longitude: geoPoint.longitude,
-      type: data.type as "food" | "drink",
+      type: data.type as Thela["type"],
       mainFoodItem: data.mainFoodItem,
     //   rating: data.rating,
     };
@@ -61,7 +61,7 @@ export const saveThela = async (
   description: string, 
   latitude: number, 
   longitude: number,
-  type: "food" | "drink",
+  type: Thela["type"],
   mainFoodItem?: string,
 //   rating?: number
 ): Promise<string> => {
