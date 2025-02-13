@@ -49,23 +49,24 @@ export const getThelas = async (): Promise<Thela[]> => {
 // Save a new stall
 export const saveThela = async (
   name: string, 
-  description: string, 
+  description: string | undefined, 
   latitude: number, 
   longitude: number,
   type: Thela["type"],
   mainFoodItem?: string,
 //   rating?: number
 ): Promise<string> => {
-  const docRef = await addDoc(collection(db, "thelas"), { 
+  const docData: any = { 
     name, 
-    description, 
     location: new GeoPoint(latitude, longitude),
     type,
-    mainFoodItem,
-    // rating,
     createdAt: serverTimestamp()
-  });
+  };
 
+  if (description) docData.description = description;
+  if (mainFoodItem) docData.mainFoodItem = mainFoodItem;
+
+  const docRef = await addDoc(collection(db, "thelas"), docData);
   return docRef.id;
 };
 

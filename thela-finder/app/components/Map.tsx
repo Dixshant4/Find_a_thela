@@ -147,10 +147,11 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const specialityItem = (type === 'food' || type === 'drink') ? mainFoodItem : undefined;
     const thela = {
       name,
       description,
-      mainFoodItem,
+      mainFoodItem: specialityItem,
     //   rating,
       latitude: newThela.lat,
       longitude: newThela.lng,
@@ -160,7 +161,7 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
     if (onAddThela) {
       onAddThela(thela);
     } else {
-      await saveThela(name, description, newThela.lat, newThela.lng, type, mainFoodItem);  // removed rating options from this line
+      await saveThela(name, description, newThela.lat, newThela.lng, type, specialityItem);  // removed rating options from this line
     }
 
     // Reset form fields
@@ -280,35 +281,26 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
               <span className="font-semibold text-gray-700 text-sm">Type:</span>{' '}
               <span className="text-gray-900 text-sm capitalize">{selectedThela.type}</span>
             </div>
-            {selectedThela.mainFoodItem && (
+            {selectedThela.type === 'food' && selectedThela.mainFoodItem && (
               <div>
-                <span className="font-semibold text-gray-700 text-sm">Speciality:</span>{' '}
+                <span className="font-semibold text-gray-700 text-sm">Main Food Item:</span>{' '}
                 <span className="text-gray-900 text-sm">{selectedThela.mainFoodItem}</span>
               </div>
             )}
-            <div>
-              <span className="font-semibold text-gray-700 text-sm">Description:</span>{' '}
-              <span className="text-gray-900 text-sm italic">{selectedThela.description}</span>
-            </div>
-            {/* <div className="flex items-center">
-              <span className="font-semibold text-gray-700 mr-2 text-sm">Rating:</span>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  size={14}
-                  className={`mr-1 ${
-                    selectedThela.rating && selectedThela.rating >= star
-                      ? 'text-yellow-500'
-                      : 'text-gray-300'
-                  }`}
-                />
-              ))}
-              <span className="ml-2 text-xs text-gray-600">
-                {selectedThela.rating ? `${selectedThela.rating}/5` : 'No rating'}
-              </span>
-            </div> */}
+            {selectedThela.type === 'drink' && selectedThela.mainFoodItem && (
+              <div>
+                <span className="font-semibold text-gray-700 text-sm">Main Drink Item:</span>{' '}
+                <span className="text-gray-900 text-sm">{selectedThela.mainFoodItem}</span>
+              </div>
+            )}
+            {selectedThela.description && (
+              <div>
+                <span className="font-semibold text-gray-700 text-sm">Description:</span>{' '}
+                <span className="text-gray-900 text-sm italic">{selectedThela.description}</span>
+              </div>
+            )}
             <button
-              onClick={() => handleDeleteThela(selectedThela.id!)} // Call delete handler
+              onClick={() => handleDeleteThela(selectedThela.id!)}
               className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
             >
               Delete Stall
@@ -376,7 +368,7 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
                 </label>
                 <select
                     value={type}
-                    onChange={(e) => setType(e.target.value as "food" | "drink")}
+                    onChange={(e) => setType(e.target.value as "food" | "drink" | "tailor" | "flowers" | "mochi")}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 
                     text-black bg-white" // Changed text color to black
                 >
@@ -387,22 +379,24 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
                     <option value="mochi">Mochi</option>
                 </select>
               </div>
+              {(type === 'food' || type === 'drink') && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {type === 'food' ? 'Main Food Item' : 'Main Drink Item'}
+                  </label>
+                  <input
+                    type="text"
+                    value={mainFoodItem}
+                    onChange={(e) => setMainFoodItem(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 
+                    text-black bg-white"
+                    placeholder={type === 'food' ? 'e.g., Vada Pav, Bhel Puri' : 'e.g., Sugarcane Juice, Lassi'}
+                  />
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Main Food Item
-                </label>
-                <input
-                  type="text"
-                  value={mainFoodItem}
-                  onChange={(e) => setMainFoodItem(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 
-                  text-black bg-white" // Changed text color to black
-                  placeholder="e.g., Vada Pav, Bhel Puri, etc."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
+                  Description (Optional)
                 </label>
                 <textarea
                   value={description}
