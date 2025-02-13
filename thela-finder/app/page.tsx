@@ -5,20 +5,11 @@ import { useEffect, useState } from "react";
 import { getThelas, saveThela } from "./backend/firebase";
 import ThelaMap from "./components/Map";
 
-export interface Thela {
-  id?: string;
-  name: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-  type: "food" | "drink" | "tailor" | "flowers" | "mochi";
-  mainFoodItem?: string;
-  // rating?: number;
-}
+import { Thela, ThelaType } from './types/thela';
 
 export default function Home() {
   const [thelas, setThelas] = useState<Thela[]>([]);
-  const [filter, setFilter] = useState<"all" | "food" | "drink" | "tailor" | "flowers" | "mochi">("all"); // Default to "all"
+  const [filter, setFilter] = useState<ThelaType>("all");
 
 
   useEffect(() => {

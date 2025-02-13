@@ -25,16 +25,7 @@ const firebaseConfig: FirebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-export interface Thela {
-  id: string;
-  name: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-  type: "food" | "drink" | "tailor" | "flowers" | "mochi"; // can I convert this to a global variable?
-  mainFoodItem?: string;
-//   rating?: number;
-}
+import { Thela } from '../types/thela';
 
 // Fetch stalls
 export const getThelas = async (): Promise<Thela[]> => {

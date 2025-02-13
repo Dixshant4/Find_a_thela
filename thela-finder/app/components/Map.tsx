@@ -3,16 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { Utensils, CupSoda } from "lucide-react"; // removed a star import for rating
 import { saveThela, deleteThela } from "../backend/firebase";
 
-interface Thela {
-  id?: string;
-  name: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-  type: "food" | "drink" | "tailor" | "flowers" | "mochi";
-  mainFoodItem?: string;
-//   rating?: number;
-}
+import { Thela } from '../types/thela';
 
 interface MapProps {
   thelas: Thela[];
