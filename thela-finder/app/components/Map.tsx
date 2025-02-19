@@ -1,3 +1,5 @@
+"use client";
+
 import { GoogleMap, Marker, InfoWindow, useLoadScript, MarkerClusterer } from "@react-google-maps/api";
 import { useEffect, useState, useRef } from "react";
 
