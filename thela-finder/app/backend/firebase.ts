@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { Thela } from '../types/thela';
 import { collection, getDocs, GeoPoint, addDoc, serverTimestamp, deleteDoc, doc  } from "firebase/firestore";
-import { getAuth, User } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 
 // Define the configuration type
 interface FirebaseConfig {
