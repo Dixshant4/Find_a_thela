@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { Thela } from '../types/thela';
 import { collection, getDocs, GeoPoint, addDoc, serverTimestamp, deleteDoc, doc  } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, User } from "firebase/auth";
 
 // Define the configuration type
 interface FirebaseConfig {
@@ -41,6 +41,7 @@ export const getThelas = async (): Promise<Thela[]> => {
       longitude: geoPoint.longitude,
       type: data.type as Thela["type"],
       mainFoodItem: data.mainFoodItem,
+      userId: data.userId
     //   rating: data.rating,
     };
   });
@@ -53,6 +54,7 @@ export const saveThela = async (
   latitude: number, 
   longitude: number,
   type: Thela["type"],
+  userId: string,
   mainFoodItem?: string,
 //   rating?: number
 ): Promise<string> => {
@@ -60,7 +62,8 @@ export const saveThela = async (
     name, 
     location: new GeoPoint(latitude, longitude),
     type,
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
+    userId
   };
 
   if (description) docData.description = description;

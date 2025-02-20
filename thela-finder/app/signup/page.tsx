@@ -20,7 +20,7 @@ const SignUpPage = () => {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      router.push('/dashboard'); // Redirect to dashboard after successful sign-up
+      router.push('/'); // Redirect to home page instead of dashboard
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during sign-up');
     } finally {
@@ -35,7 +35,7 @@ const SignUpPage = () => {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      router.push('/dashboard'); // Redirect to dashboard after successful sign-up
+      router.push('/'); // Redirect to home page instead of dashboard
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during Google sign-up');
     } finally {
@@ -49,6 +49,12 @@ const SignUpPage = () => {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Create your account
         </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Or{' '}
+          <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            sign in to your account
+          </Link>
+        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

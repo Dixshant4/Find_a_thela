@@ -4,11 +4,13 @@ import { Utensils, CupSoda } from "lucide-react"; // removed a star import for r
 import { saveThela, deleteThela } from "../backend/firebase";
 
 import { Thela } from '../types/thela';
+import { User } from 'firebase/auth';
 
 interface MapProps {
   thelas: Thela[];
   onAddThela?: (thela: Omit<Thela, 'id'>) => void;
   onDeleteThela?: (id: string) => void;
+  currentUser: User | null; // Add this line
 }
 
 const mapContainerStyle = {
@@ -23,7 +25,7 @@ const center = {
   lng: 72.8777,
 };
 
-export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps) {
+export default function ThelaMap({ thelas, onAddThela, onDeleteThela, currentUser }: MapProps) {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
   });
@@ -120,6 +122,8 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
   };
 
   const handleMapTap = (e: google.maps.MapMouseEvent) => {
+    if (!onAddThela) return; // Don't handle taps if user can't add thelas
+
     const now = new Date().getTime();
     const timeSinceLastTap = now - lastTapRef.current;
   
@@ -147,6 +151,8 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentUser) return; // Add this check
+
     const specialityItem = (type === 'food' || type === 'drink') ? mainFoodItem : undefined;
     const thela = {
       name,
@@ -156,12 +162,13 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
       latitude: newThela.lat,
       longitude: newThela.lng,
       type,
+      userId: currentUser.uid // Add the user ID
     };
 
     if (onAddThela) {
       onAddThela(thela);
     } else {
-      await saveThela(name, description, newThela.lat, newThela.lng, type, specialityItem);  // removed rating options from this line
+      await saveThela(name, description, newThela.lat, newThela.lng, type, currentUser.uid, specialityItem);  // removed rating options from this line
     }
 
     // Reset form fields
@@ -299,12 +306,14 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
                 <span className="text-gray-900 text-sm italic">{selectedThela.description}</span>
               </div>
             )}
+            {currentUser && selectedThela.userId === currentUser.uid && (
             <button
               onClick={() => handleDeleteThela(selectedThela.id!)}
               className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
             >
               Delete Stall
             </button>
+            )}
           </div>
         </div>
       </InfoWindow>
