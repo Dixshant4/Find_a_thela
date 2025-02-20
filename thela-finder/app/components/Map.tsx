@@ -7,11 +7,13 @@ import ThelaForm from "./ThelaForm/ThelaForm";
 import ThelaInfoWindow from "./ThelaInfoWindow/ThelaInfoWindow";
 
 import { Thela } from '../types/thela';
+import { User } from 'firebase/auth';
 
 interface MapProps {
   thelas: Thela[];
   onAddThela?: (thela: Omit<Thela, 'id'>) => void;
   onDeleteThela?: (id: string) => void;
+  currentUser: User | null; // Add this line
 }
 
 const mapContainerStyle = {
@@ -23,7 +25,7 @@ const mapContainerStyle = {
 
 const center = {lat: 19.0760, lng: 72.8777};
 
-export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps) {
+export default function ThelaMap({ thelas, onAddThela, onDeleteThela, currentUser }: MapProps) {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
   });
@@ -91,6 +93,8 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
   };
 
   const handleMapTap = (e: google.maps.MapMouseEvent) => {
+    if (!onAddThela) return; // Don't handle taps if user can't add thelas
+
     const now = new Date().getTime();
     const timeSinceLastTap = now - lastTapRef.current;
   
@@ -116,9 +120,27 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
   };
 
 
-  const handleFormSubmit = async (thela: Omit<Thela, 'id'>) => {
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return; // Add this check
+
+    const specialityItem = (type === 'food' || type === 'drink') ? mainFoodItem : undefined;
+    const thela = {
+      name,
+      description,
+      mainFoodItem: specialityItem,
+    //   rating,
+      latitude: newThela.lat,
+      longitude: newThela.lng,
+      type,
+      userId: currentUser.uid // Add the user ID
+    };
+
     if (onAddThela) {
       onAddThela(thela);
+    } else {
+      await saveThela(name, description, newThela.lat, newThela.lng, type, currentUser.uid, specialityItem);  // removed rating options from this line
     }
     setShowForm(false);
     setTempMarker(null);
@@ -208,17 +230,57 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela }: MapProps
         )}  
 
 
-{selectedThela && (
-          <InfoWindow
-            position={{ lat: selectedThela.latitude, lng: selectedThela.longitude }}
-            onCloseClick={() => setSelectedThela(null)}
-          >
-            <ThelaInfoWindow
-              thela={selectedThela}
-              onClose={() => setSelectedThela(null)}
-              onDelete={handleDeleteThela}
-            />
-          </InfoWindow>
+
+        {selectedThela && (
+        <InfoWindow
+        position={{ lat: selectedThela.latitude, lng: selectedThela.longitude }}
+        onCloseClick={() => setSelectedThela(null)}
+      >
+        <div className="bg-white rounded-lg shadow-xl">
+          <div className="flex items-center p-3 border-b">
+            {selectedThela.type === 'food' ? (
+              <Utensils className="mr-3 text-emerald-600" size={20} />
+            ) : (
+              <CupSoda className="mr-3 text-blue-600" size={20} />
+            )}
+            <h2 className="text-lg font-bold text-gray-900">{selectedThela.name}</h2>
+          </div>
+      
+          <div className="p-3 space-y-2">
+            <div>
+              <span className="font-semibold text-gray-700 text-sm">Type:</span>{' '}
+              <span className="text-gray-900 text-sm capitalize">{selectedThela.type}</span>
+            </div>
+            {selectedThela.type === 'food' && selectedThela.mainFoodItem && (
+              <div>
+                <span className="font-semibold text-gray-700 text-sm">Main Food Item:</span>{' '}
+                <span className="text-gray-900 text-sm">{selectedThela.mainFoodItem}</span>
+              </div>
+            )}
+            {selectedThela.type === 'drink' && selectedThela.mainFoodItem && (
+              <div>
+                <span className="font-semibold text-gray-700 text-sm">Main Drink Item:</span>{' '}
+                <span className="text-gray-900 text-sm">{selectedThela.mainFoodItem}</span>
+              </div>
+            )}
+            {selectedThela.description && (
+              <div>
+                <span className="font-semibold text-gray-700 text-sm">Description:</span>{' '}
+                <span className="text-gray-900 text-sm italic">{selectedThela.description}</span>
+              </div>
+            )}
+            {currentUser && selectedThela.userId === currentUser.uid && (
+            <button
+              onClick={() => handleDeleteThela(selectedThela.id!)}
+              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+            >
+              Delete Stall
+            </button>
+            )}
+          </div>
+        </div>
+      </InfoWindow>
+     
         )}
 
         <button

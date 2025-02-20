@@ -1,7 +1,8 @@
-// firebase.ts
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { Thela } from '../types/thela';
 import { collection, getDocs, GeoPoint, addDoc, serverTimestamp, deleteDoc, doc  } from "firebase/firestore";
+import { getAuth, User } from "firebase/auth";
 
 // Define the configuration type
 interface FirebaseConfig {
@@ -24,8 +25,7 @@ const firebaseConfig: FirebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-import { Thela } from '../types/thela';
+const auth = getAuth(app);
 
 // Fetch stalls
 export const getThelas = async (): Promise<Thela[]> => {
@@ -41,6 +41,7 @@ export const getThelas = async (): Promise<Thela[]> => {
       longitude: geoPoint.longitude,
       type: data.type as Thela["type"],
       mainFoodItem: data.mainFoodItem,
+      userId: data.userId
     //   rating: data.rating,
     };
   });
@@ -53,6 +54,7 @@ export const saveThela = async (
   latitude: number, 
   longitude: number,
   type: Thela["type"],
+  userId: string,
   mainFoodItem?: string,
 //   rating?: number
 ): Promise<string> => {
@@ -60,7 +62,8 @@ export const saveThela = async (
     name, 
     location: new GeoPoint(latitude, longitude),
     type,
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
+    userId
   };
 
   if (description) docData.description = description;
@@ -75,4 +78,4 @@ export const deleteThela = async (id: string): Promise<void> => {
     await deleteDoc(doc(db, "thelas", id));
   };
 
-export { db };
+export { db, auth };

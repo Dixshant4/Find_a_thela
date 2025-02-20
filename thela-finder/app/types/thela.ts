@@ -6,6 +6,7 @@ export interface Thela {
     longitude: number;
     type: "food" | "drink" | "tailor" | "flowers" | "mochi";
     mainFoodItem?: string;  // Changed from mainFoodItem to be more generic
+    userId: string;
   }
   
   export type ThelaType = "all" | "food" | "drink" | "tailor" | "flowers" | "mochi";
