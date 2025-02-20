@@ -1,7 +1,8 @@
-// firebase.ts
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { Thela } from '../types/thela';
 import { collection, getDocs, GeoPoint, addDoc, serverTimestamp, deleteDoc, doc  } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 // Define the configuration type
 interface FirebaseConfig {
@@ -24,8 +25,7 @@ const firebaseConfig: FirebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-import { Thela } from '../types/thela';
+const auth = getAuth(app);
 
 // Fetch stalls
 export const getThelas = async (): Promise<Thela[]> => {
@@ -75,4 +75,4 @@ export const deleteThela = async (id: string): Promise<void> => {
     await deleteDoc(doc(db, "thelas", id));
   };
 
-export { db };
+export { db, auth };
