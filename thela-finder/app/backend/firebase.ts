@@ -58,6 +58,7 @@ export const saveThela = async (
   mainFoodItem?: string,
 //   rating?: number
 ): Promise<string> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const docData: any = { 
     name, 
     location: new GeoPoint(latitude, longitude),
