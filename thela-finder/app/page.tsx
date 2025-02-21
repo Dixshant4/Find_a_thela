@@ -107,9 +107,9 @@ export default function Home() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-black/5 rounded-lg transition-colors"
+            className="p-2 text-gray-800"
           >
-            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+            {sidebarOpen ? <X size={24} /> : <Menu size={24} strokeWidth={2.5}/>}
           </button>
           <h1 className="text-2xl font-bold text-gray-900">ठेला Finder</h1>
         </div>
@@ -117,7 +117,7 @@ export default function Home() {
         <div>
           {user ? (
             <div className="flex items-center gap-4">
-              <span className="text-gray-700">{user.email}</span>
+{/*               <span className="text-gray-700">{user.email}</span> */}
               <button
                 onClick={handleSignOut}
                 className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors font-medium"
@@ -128,9 +128,9 @@ export default function Home() {
           ) : (
             <Link
               href="/signup"
-              className="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition-colors font-medium"
+              className="bg-emerald-500 text-white px-1 py-2 rounded-lg hover:bg-emerald-600 transition-colors font-medium"
             >
-              Sign In
+              Sign In to Add Thelas
             </Link>
           )}
         </div>
@@ -182,6 +182,12 @@ export default function Home() {
                 {type}
               </button>
             ))}
+            {user && (
+          <div className="px-4 py-4 border-b border-gray-20">
+            <p className="text-sm text-red-500">Signed in as:</p>
+            <p className="text-sm font-medium text-red-500">{user.email}</p>
+          </div>
+        )}
           </div>
         </div>
       </div>
