@@ -128,7 +128,7 @@ export default function Home() {
           ) : (
             <Link
               href="/signup"
-              className="bg-emerald-500 text-white px-1 py-2 rounded-lg hover:bg-emerald-600 transition-colors font-medium"
+              className="bg-emerald-500 text-whit text-sm px-1 py-2 rounded-lg hover:bg-emerald-600 transition-colors font-medium"
             >
               Sign In to Add Thelas
             </Link>

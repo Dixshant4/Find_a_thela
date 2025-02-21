@@ -45,8 +45,7 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela, currentUse
   const tapTimeout = useRef<NodeJS.Timeout | null>(null); // Timeout for single-tap delay
   const [hasCenteredOnUser, setHasCenteredOnUser] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false); // State to show the popup
-
-
+  const MIN_ZOOM_FOR_ADD = 18;
 
 
   useEffect(() => {
@@ -113,13 +112,29 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela, currentUse
     };
 
   const handleSingleTap = (e: google.maps.MapMouseEvent) => {
-    // if (!tapTimeout.current) return;
+    const map = mapRef.current;
+  if (!map) return;
+
+  const currentZoom = map.getZoom() || 0;
+  
+  // Only allow adding thela if zoom level is sufficient
+  if (currentZoom >= MIN_ZOOM_FOR_ADD) {
     if (e.latLng) {
       setNewThela({ lat: e.latLng.lat(), lng: e.latLng.lng() });
       setTempMarker({ lat: e.latLng.lat(), lng: e.latLng.lng() });
       setShowForm(true);
     }
-  };
+  } else {
+    return; // Don't add thela if zoom level is too low
+  }
+};
+  //   // if (!tapTimeout.current) return;
+  //   if (e.latLng) {
+  //     setNewThela({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+  //     setTempMarker({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+  //     setShowForm(true);
+  //   }
+  // };
 
   const handleMapTap = (e: google.maps.MapMouseEvent) => {
     if (!onAddThela) return; // Don't handle taps if user can't add thelas
