@@ -24,8 +24,6 @@ const SignUpPage = () => {
 
   // Handle Redirect Result AFTER page reload
   useEffect(() => {
-    // alert("On sign-up page connect");
-
     // Check if a user is already signed in
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -71,9 +69,9 @@ const SignUpPage = () => {
     setLoading(true);
     setError("");
 
+    // Note: switch back to signInWithRedirect() for mobile when we have our own domain.
     try {
       const provider = new GoogleAuthProvider();
-      // alert(navigator.userAgent);
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       if (isMobile) {
         // await signInWithRedirect(auth, provider);
