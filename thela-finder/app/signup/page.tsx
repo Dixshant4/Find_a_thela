@@ -7,7 +7,6 @@ import {
   getRedirectResult,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
   onAuthStateChanged,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -25,7 +24,7 @@ const SignUpPage = () => {
 
   // Handle Redirect Result AFTER page reload
   useEffect(() => {
-    alert("On sign-up page connect");
+    // alert("On sign-up page connect");
 
     // Check if a user is already signed in
     onAuthStateChanged(auth, (user) => {
