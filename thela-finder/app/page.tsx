@@ -3,13 +3,12 @@
 import { useEffect, useState } from "react";
 import { getThelas, saveThela, auth } from "./backend/firebase";
 import ThelaMap from "./components/Map";
-import { Thela, ThelaType } from './types/thela';
-import { User } from 'firebase/auth';
-import Link from 'next/link';
-import { signOut } from 'firebase/auth';
-import { Menu, X } from 'lucide-react';
-import { getRedirectResult } from 'firebase/auth';
-
+import { Thela, ThelaType } from "./types/thela";
+import { User } from "firebase/auth";
+import Link from "next/link";
+import { signOut } from "firebase/auth";
+import { Menu, X } from "lucide-react";
+import { getRedirectResult } from "firebase/auth";
 
 export default function Home() {
   const [thelas, setThelas] = useState<Thela[]>([]);
@@ -44,7 +43,7 @@ export default function Home() {
         console.error("Error handling redirect result:", error);
       }
     };
-  
+
     handleRedirectResult();
   }, []);
 
@@ -56,7 +55,7 @@ export default function Home() {
     }
   };
 
-  const handleAddThela = async (newThela: Omit<Thela, 'id'>) => {
+  const handleAddThela = async (newThela: Omit<Thela, "id">) => {
     if (!user) return;
     try {
       const savedThelaId = await saveThela(
@@ -66,16 +65,16 @@ export default function Home() {
         newThela.longitude,
         newThela.type,
         user.uid,
-        newThela.mainFoodItem,
+        newThela.mainFoodItem
       );
 
       const thelaWithId = {
         ...newThela,
         id: savedThelaId,
-        userId: user.uid
+        userId: user.uid,
       };
 
-      setThelas(prevThelas => [...prevThelas, thelaWithId]);
+      setThelas((prevThelas) => [...prevThelas, thelaWithId]);
     } catch (error) {
       console.error("Error adding thela:", error);
     }
@@ -87,16 +86,18 @@ export default function Home() {
 
   const getFilteredThelas = () => {
     if (filter === "personal" && user) {
-      return thelas.filter(thela => thela.userId === user.uid);
+      return thelas.filter((thela) => thela.userId === user.uid);
     }
-    return filter === "all" ? thelas : thelas.filter((thela) => thela.type === filter);
+    return filter === "all"
+      ? thelas
+      : thelas.filter((thela) => thela.type === filter);
   };
 
   return (
     <div className="h-[100dvh] w-full relative">
       {/* Overlay for closing sidebar when clicking outside */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-20"
           onClick={() => setSidebarOpen(false)}
         />
@@ -113,7 +114,7 @@ export default function Home() {
           </button>
           <h1 className="text-2xl font-bold text-gray-900">ठेला Finder</h1>
         </div>
-        
+
         <div>
           {user ? (
             <div className="flex items-center gap-4">
@@ -139,44 +140,46 @@ export default function Home() {
       {/* Improved Sidebar */}
       <div
         className={`fixed left-0 top-0 bottom-0 w-40 bg-white/95 backdrop-blur-sm shadow-xl transform transition-transform duration-300 ease-in-out z-20 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="p-6 pt-20">
-          <h2 className="text-xl font-semibold mb-6 text-gray-900">Filter Thela&apos;s</h2>
+          <h2 className="text-xl font-semibold mb-6 text-gray-900">
+            Filter Thela&apos;s
+          </h2>
           <div className="space-y-2">
             <button
               onClick={() => setFilter("all")}
               className={`w-full text-left px-4 py-3 rounded-lg transition-all font-medium ${
-                filter === "all" 
-                  ? 'bg-emerald-500 text-white shadow-md' 
-                  : 'text-gray-700 hover:bg-gray-100'
+                filter === "all"
+                  ? "bg-emerald-500 text-white shadow-md"
+                  : "text-gray-700 hover:bg-gray-100"
               }`}
             >
               All Thelas
             </button>
-            
+
             {user && (
               <button
                 onClick={() => setFilter("personal")}
                 className={`w-full text-left px-4 py-3 rounded-lg transition-all font-medium ${
-                  filter === "personal" 
-                    ? 'bg-emerald-500 text-white shadow-md' 
-                    : 'text-gray-700 hover:bg-gray-100'
+                  filter === "personal"
+                    ? "bg-emerald-500 text-white shadow-md"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 Your Thelas
               </button>
             )}
-            
+
             {["food", "drink", "tailor", "flowers", "mochi"].map((type) => (
               <button
                 key={type}
                 onClick={() => setFilter(type as ThelaType)}
                 className={`w-full text-left px-4 py-3 rounded-lg transition-all font-medium capitalize ${
-                  filter === type 
-                    ? 'bg-emerald-500 text-white shadow-md' 
-                    : 'text-gray-700 hover:bg-gray-100'
+                  filter === type
+                    ? "bg-emerald-500 text-white shadow-md"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 {type}
@@ -194,9 +197,9 @@ export default function Home() {
 
       {/* Map */}
       <div className="h-full w-full">
-        <ThelaMap 
-          thelas={getFilteredThelas()} 
-          onAddThela={user ? handleAddThela : undefined} 
+        <ThelaMap
+          thelas={getFilteredThelas()}
+          onAddThela={user ? handleAddThela : undefined}
           onDeleteThela={handleDeleteThela}
           currentUser={user}
         />

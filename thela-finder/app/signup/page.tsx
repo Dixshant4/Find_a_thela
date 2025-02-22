@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { auth } from "../backend/firebase";
 import {
   createUserWithEmailAndPassword,
+  getRedirectResult,
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
+  onAuthStateChanged,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -17,6 +19,29 @@ const SignUpPage = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // NOTE: The following code is good to have when doing signInWithRedirect.
+  // It does not really change any other logic.
+
+  // Handle Redirect Result AFTER page reload
+  useEffect(() => {
+    alert("On sign-up page connect");
+
+    // Check if a user is already signed in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push("/"); // Redirect to home
+      }
+    });
+
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          router.push("/"); // ✅ Redirect after successful login
+        }
+      })
+      .catch((error) => console.error("Redirect sign-in error:", error));
+  }, []);
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,13 +74,16 @@ const SignUpPage = () => {
 
     try {
       const provider = new GoogleAuthProvider();
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        await signInWithRedirect(auth, provider);
+      // alert(navigator.userAgent);
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (isMobile) {
+        // await signInWithRedirect(auth, provider);
+        await signInWithPopup(auth, provider);
+        router.push("/"); // Redirect to home page instead of dashboard
       } else {
         await signInWithPopup(auth, provider);
+        router.push("/"); // Redirect to home page instead of dashboard
       }
-      // await signInWithPopup(auth, provider);
-      router.push("/"); // Redirect to home page instead of dashboard
     } catch (err) {
       setError(
         err instanceof Error
