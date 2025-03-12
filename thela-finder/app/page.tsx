@@ -145,7 +145,7 @@ export default function Home() {
       >
         <div className="p-6 pt-20 flex-grow overflow-y-auto">
           <h2 className="text-xl font-semibold mb-6 text-gray-900">
-            Filter Thela's
+            Filter Thela&apos;s
           </h2>
           <div className="space-y-2">
             <button
