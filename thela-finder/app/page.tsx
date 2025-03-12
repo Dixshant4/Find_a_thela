@@ -139,13 +139,13 @@ export default function Home() {
 
       {/* Improved Sidebar */}
       <div
-        className={`fixed left-0 top-0 bottom-0 w-40 bg-white/95 backdrop-blur-sm shadow-xl transform transition-transform duration-300 ease-in-out z-20 ${
+        className={`fixed left-0 top-0 bottom-0 w-48 bg-white/95 backdrop-blur-sm shadow-xl transform transition-transform duration-300 ease-in-out z-20 flex flex-col ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="p-6 pt-20">
+        <div className="p-6 pt-20 flex-grow overflow-y-auto">
           <h2 className="text-xl font-semibold mb-6 text-gray-900">
-            Filter Thela&apos;s
+            Filter Thela's
           </h2>
           <div className="space-y-2">
             <button
@@ -185,12 +185,12 @@ export default function Home() {
                 {type}
               </button>
             ))}
-            {user && (
-          <div className="px-4 py-4 border-b border-gray-20">
-            <p className="text-sm text-red-500">Signed in as:</p>
-            <p className="text-sm font-medium text-red-500">{user.email}</p>
-          </div>
-        )}
+              {user && (
+                <div className="border-t border-gray-200 p-4 bg-white w-full">
+                  <p className="text-xs text-gray-500">Signed in as:</p>
+                  <p className="text-sm font-medium text-gray-700 truncate">{user.email}</p>
+                </div>
+              )}
           </div>
         </div>
       </div>
