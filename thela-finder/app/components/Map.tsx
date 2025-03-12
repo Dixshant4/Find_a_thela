@@ -1,6 +1,6 @@
 import { GoogleMap, Marker, InfoWindow, useLoadScript, MarkerClusterer } from "@react-google-maps/api";
 import { useEffect, useState, useRef } from "react";
-import { Utensils, CupSoda } from "lucide-react"; // removed a star import for rating
+import { Utensils, CupSoda, Scissors, Flower, Footprints, X } from "lucide-react"; // removed a star import for rating
 import { saveThela, deleteThela } from "../backend/firebase";
 
 import { Thela } from '../types/thela';
@@ -287,17 +287,57 @@ export default function ThelaMap({ thelas, onAddThela, onDeleteThela, currentUse
         <InfoWindow
         position={{ lat: selectedThela.latitude, lng: selectedThela.longitude }}
         onCloseClick={() => setSelectedThela(null)}
+        options={{
+          pixelOffset: new google.maps.Size(0, -1),
+          disableAutoPan: false,
+          maxWidth: 320
+        }}
       >
-        <div className="bg-white rounded-lg shadow-xl">
-          <div className="flex items-center p-3 border-b">
-            {selectedThela.type === 'food' ? (
-              <Utensils className="mr-3 text-emerald-600" size={20} />
-            ) : (
-              <CupSoda className="mr-3 text-blue-600" size={20} />
-            )}
+        <div className="bg-white rounded-lg shadow-xl max-w-xs" style={{ marginTop: '-4px' }}>
+        <style>
+            {`
+              .gm-ui-hover-effect {
+                display: none !important;
+              }
+              .gm-style-iw {
+                padding: 8px !important;
+              }
+              .gm-style-iw-t::after {
+                top: -1px;
+              }
+              .gm-style-iw-tc {
+                display: none !important;
+              }
+            `}
+          </style>
+          <div className="flex items-center justify-between px-2 py-1.5 border-b">
+          <div className="flex items-center">
+          {/* <div className="flex items-center p-3 border-b"> */}
+          {selectedThela.type === 'food' ? (
+          <Utensils className="mr-3 text-emerald-600" size={20} />
+        ) : selectedThela.type === 'drink' ? (
+          <CupSoda className="mr-3 text-blue-600" size={20} />
+        ) : selectedThela.type === 'tailor' ? (
+          <Scissors className="mr-3 text-purple-600" size={20} />
+        ) : selectedThela.type === 'flowers' ? (
+          <Flower className="mr-3 text-pink-600" size={20} />
+        ) : selectedThela.type === 'mochi' ? (
+          <Footprints className="mr-3 text-amber-600" size={20} />
+        ) : (
+          <Utensils className="mr-3 text-emerald-600" size={20} />
+        )}
             <h2 className="text-lg font-bold text-gray-900">{selectedThela.name}</h2>
           </div>
-      
+
+          <button
+          onClick={() => setSelectedThela(null)}
+          className="text-gray-500 hover:text-gray-700"
+          aria-label="Close"
+        >
+          <X size={24} />
+        </button>
+        </div>
+        
           <div className="p-3 space-y-2">
             <div>
               <span className="font-semibold text-gray-700 text-sm">Type:</span>{' '}
