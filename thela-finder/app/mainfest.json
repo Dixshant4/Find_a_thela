@@ -1,0 +1,10 @@
+{
+    "name": "Thela Finder",
+    "short_name": "Thela",
+    "start_url": "/",
+    "display": "standalone",
+    "theme_color": "#ffffff",
+    "background_color": "#ffffff",
+    "description": "Find and mark your favorite street stalls"
+  }
+  
